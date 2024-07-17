@@ -79,11 +79,10 @@ class Bank:
                     if final_confirm.lower() == "y":
                         # next action
                         print(f"opening your account with $ {initial_amount: ,}")
-                        
-                        with open (f"{fname}_{lname}.txt", "w")as f:
-                            f.write(str(initial_amount))
+                        file = self.open_w_file(fname, lname)
+                        file.write(str(initial_amount))
                             
-                        self.despatch(fname, lname, initial_amount, f)
+                        self.despatch(fname, lname, initial_amount)
                         return None
                         # File write and amount typed in
                         
@@ -107,21 +106,27 @@ class Bank:
     def deposit(self, fname, lname, total):
         deposit_amount = input("How much do you want to put in?: $ ")
         total += float(deposit_amount)
-        print(total)
         w_file = self.open_w_file(fname, lname)
         w_file.write(str(total))
             
-        self.despatch(fname, lname, total)
+        self.check_balance(fname, lname, total)
     
     def withdrawal(self, fname, lname, total):
-        w_amount = input("How much do you want to withdraw?: $ ")
-        total -= float(w_amount)
-        w_file = self.open_w_file(fname, lname)
-        w_file.write(str(total))
-        self.despatch(fname, lname, total)
+        while True:
+            w_amount = float(input("How much do you want to withdraw?: $ "))
+            diff = total - w_amount
+            if diff >= 0:
+                total -= w_amount
+                w_file = self.open_w_file(fname, lname)
+                w_file.write(str(total))
+                break
+            else:
+                print("The amount you typed in is invalid. \nPlese try again")
+        
+        self.check_balance(fname, lname, total)
     
     def check_balance(self, fname, lname, total):
-        print(f'{fname.capitalize()} {lname.capitalize()} \nBALANCE: ${total}')
+        print(f'{fname.capitalize()} {lname.capitalize()} \nBALANCE: ${total: ,}')
         self.despatch(fname, lname, total)
         
 a = Bank()
