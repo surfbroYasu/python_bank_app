@@ -5,6 +5,14 @@ class Bank:
     def __init__(self) -> None:
         self.check_account(input("What is your first name?:  "), input("What is your last name?: "))
 
+    def open_r_file(self, fname, lname):
+            return open (f'{fname}_{lname}.txt', 'r')
+            
+    def open_w_file(self, fname, lname):
+        return open (f'{fname}_{lname}.txt', 'w')
+                
+                
+                
     def check_account(self, fname, lname):
         while True:
                 
@@ -20,9 +28,11 @@ class Bank:
                 print("invalid!")
                 
         try:
-            with open (f'{fname}_{lname}.txt', 'r') as f:
-                total = f.readlines()
-                self.despatch(fname, lname, total)
+            r_file = self.open_r_file(fname, lname)
+            total = r_file.readline()
+            print(total)
+            total = float(total)
+            self.despatch(fname, lname, total)
                         
                         
         except FileNotFoundError:
@@ -61,15 +71,19 @@ class Bank:
     def open_account(self, fname, lname):
         while True:
             initial_amount = float(input("How much initial amount do you want to put down? "))
-            if 10 < initial_amount < 10**4:
+            if 10 < initial_amount < 100_000:
                 
                 while True:
                     final_confirm = input(f"$ {initial_amount} ?  y/n: ")
                     
                     if final_confirm.lower() == "y":
                         # next action
-                        print(f"opening your account with $ {initial_amount}")
-                        self.despatch(fname, lname, initial_amount)
+                        print(f"opening your account with $ {initial_amount: ,}")
+                        
+                        with open (f"{fname}_{lname}.txt", "w")as f:
+                            f.write(str(initial_amount))
+                            
+                        self.despatch(fname, lname, initial_amount, f)
                         return None
                         # File write and amount typed in
                         
@@ -94,12 +108,16 @@ class Bank:
         deposit_amount = input("How much do you want to put in?: $ ")
         total += float(deposit_amount)
         print(total)
+        w_file = self.open_w_file(fname, lname)
+        w_file.write(str(total))
+            
         self.despatch(fname, lname, total)
     
     def withdrawal(self, fname, lname, total):
         w_amount = input("How much do you want to withdraw?: $ ")
         total -= float(w_amount)
-        print(total)
+        w_file = self.open_w_file(fname, lname)
+        w_file.write(str(total))
         self.despatch(fname, lname, total)
     
     def check_balance(self, fname, lname, total):
